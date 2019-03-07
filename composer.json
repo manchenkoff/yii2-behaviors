@@ -1,0 +1,20 @@
+{
+  "name": "manchenkov/yii2-behaviors",
+  "description": "Collection of Yii2 behaviors for models",
+  "type": "yii2-extension",
+  "require": {
+    "yiisoft/yii2": ">=2.0"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Artyom Manchenkov",
+      "email": "artyom@manchenkoff.me"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Manchenkov\\Behaviors\\": "src/"
+    }
+  }
+}
