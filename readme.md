@@ -2,6 +2,20 @@
 
 This package contains several useful behaviors which may optimize your work with `ActiveRecord` and `Model` processing
 
+## Installation
+
+You have to run following command to add a dependency to your project
+
+```bash
+composer require manchenkov/yii2-behaviors
+```
+
+or you can add this line to `require` section of `composer.json`
+
+```
+"manchenkov/yii2-behaviors": "*"
+```
+
 ### Behaviors
 
 - [JsonBehavior](https://github.com/manchenkoff/yii2-behaviors/blob/master/src/JsonBehavior.php) - used for automatic encode/decode JSON data from table columns
