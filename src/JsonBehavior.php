@@ -5,14 +5,14 @@
  * manchenkoff.me © 2019
  */
 
-namespace Manchenkov\Behaviors;
+namespace Manchenkov\Yii\Behaviors;
 
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
 
 /**
  * Class JsonBehavior for automatic encode/decode JSON data from table columns
- * @package Manchenkov\Behaviors
+ * @package Manchenkov\Yii\Behaviors
  */
 class JsonBehavior extends Behavior
 {

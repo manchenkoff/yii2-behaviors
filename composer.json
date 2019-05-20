@@ -14,7 +14,7 @@
   ],
   "autoload": {
     "psr-4": {
-      "Manchenkov\\Behaviors\\": "src/"
+      "Manchenkov\\Yii\\Behaviors\\": "src/"
     }
   }
 }

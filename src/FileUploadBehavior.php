@@ -5,7 +5,7 @@
  * manchenkoff.me © 2019
  */
 
-namespace Manchenkov\Behaviors;
+namespace Manchenkov\Yii\Behaviors;
 
 use Yii;
 use yii\base\Behavior;
@@ -16,7 +16,7 @@ use yii\web\UploadedFile;
 
 /**
  * Automatic file upload behavior for ActiveRecord
- * @package Manchenkov\Behaviors
+ * @package Manchenkov\Yii\Behaviors
  *
  * Example:
  * ```
