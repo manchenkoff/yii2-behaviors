@@ -5,7 +5,7 @@
  * manchenkoff.me © 2019
  */
 
-namespace Manchenkov\Yii\Behaviors;
+namespace manchenkov\yii\behaviors;
 
 use Yii;
 use yii\base\Behavior;
