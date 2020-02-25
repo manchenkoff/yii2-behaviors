@@ -1,9 +1,4 @@
 <?php
-/**
- * Created by Artyom Manchenkov
- * artyom@manchenkoff.me
- * manchenkoff.me © 2019
- */
 
 namespace manchenkov\yii\behaviors;
 
@@ -13,6 +8,28 @@ use yii\db\ActiveRecord;
 /**
  * Class JsonBehavior for automatic encode/decode JSON data from table columns
  * @package Manchenkov\Yii\Behaviors
+ *
+ * Example:
+ * ```
+ *
+ * public function rules()
+ * {
+ *    return [
+ *       [['title', 'data'], 'required'],
+ *       [['title', 'data'], 'string'],
+ *    ];
+ * }
+ *
+ * public function behaviors()
+ * {
+ *     return [
+ *        [
+ *          'class' => JsonBehavior::class,
+ *          'attributes' => ['data'],
+ *        ],
+ *     ];
+ * }
+ * ```
  */
 class JsonBehavior extends Behavior
 {

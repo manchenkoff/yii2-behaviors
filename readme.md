@@ -21,4 +21,4 @@ or you can add this line to `require` section of `composer.json`
 - [JsonBehavior](https://github.com/manchenkoff/yii2-behaviors/blob/master/src/JsonBehavior.php) - used for automatic encode/decode JSON data from table columns
 - [FileUploadBehavior](https://github.com/manchenkoff/yii2-behaviors/blob/master/src/FileUploadBehavior.php) - easy file upload management behavior for ActiveRecord
 
-All sources are documented well, so you may open it to get more details
+All sources documented well, so you may open it to get more details

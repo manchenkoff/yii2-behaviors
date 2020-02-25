@@ -1,14 +1,11 @@
 <?php
-/**
- * Created by Artyom Manchenkov
- * artyom@manchenkoff.me
- * manchenkoff.me © 2019
- */
 
 namespace manchenkov\yii\behaviors;
 
+use Exception as BaseException;
 use Yii;
 use yii\base\Behavior;
+use yii\base\Exception;
 use yii\db\ActiveRecord;
 use yii\helpers\FileHelper;
 use yii\helpers\StringHelper;
@@ -35,7 +32,7 @@ use yii\web\UploadedFile;
  *     return [
  *        [
  *          'class' => FileUploadBehavior::class,
- *          'storagePath' => '@storage',
+ *          'storagePath' => '@storage', // alias for web uploads directory (ex. @webroot/storage)
  *          'uploadPath' => '/uploads/images',
  *          'attributes' => ['image'],
  *          'callback' => function (string $filename) {...},
@@ -73,19 +70,19 @@ class FileUploadBehavior extends Behavior
     public function events()
     {
         return [
-            ActiveRecord::EVENT_BEFORE_VALIDATE => 'beforeValidate',
+            ActiveRecord::EVENT_BEFORE_VALIDATE => 'loadFilesFromRequest',
 
-            ActiveRecord::EVENT_BEFORE_INSERT => 'beforeSave',
-            ActiveRecord::EVENT_BEFORE_UPDATE => 'beforeSave',
+            ActiveRecord::EVENT_BEFORE_INSERT => 'handleUploadedFiles',
+            ActiveRecord::EVENT_BEFORE_UPDATE => 'handleUploadedFiles',
 
-            ActiveRecord::EVENT_AFTER_DELETE => 'afterDelete',
+            ActiveRecord::EVENT_AFTER_DELETE => 'clean',
         ];
     }
 
     /**
      * Loads files before ActiveRecord validation process
      */
-    public function beforeValidate()
+    public function loadFilesFromRequest()
     {
         /** @var ActiveRecord $model */
         $model = $this->owner;
@@ -102,7 +99,7 @@ class FileUploadBehavior extends Behavior
     /**
      * Saves uploaded files and set new ActiveRecord URLs
      */
-    public function beforeSave()
+    public function handleUploadedFiles()
     {
         /** @var ActiveRecord $model */
         $model = $this->owner;
@@ -113,24 +110,50 @@ class FileUploadBehavior extends Behavior
 
             // process uploaded file or keep existing string value
             if ($file instanceof UploadedFile) {
-                $oldFile = $model->oldAttributes[$attr] ?? null;
-                $newFile = $this->store($file);
-
-                if ($newFile) {
-                    $model->{$attr} = $newFile;
-
-                    if ($oldFile && $newFile != $oldFile) {
-                        $this->removeFile($oldFile);
-                    }
-
-                    // use callback function if exists
-                    if (!is_null($this->callback)) {
-                        call_user_func($this->callback, $newFile);
-                    }
-                } else {
-                    $model->addError($attr, Yii::t('yii', 'File upload failed.'));
-                }
+                $this->saveUploadedFile(
+                    $model,
+                    $attr,
+                    $file
+                );
             }
+        }
+    }
+
+    /**
+     * Removes all of the record files in a storage
+     */
+    public function clean()
+    {
+        foreach ($this->attributes as $attr) {
+            if ($this->owner->{$attr}) {
+                $this->removeFile($this->owner->{$attr});
+            }
+        }
+    }
+
+    /**
+     * @param ActiveRecord $model
+     * @param string $attr
+     * @param UploadedFile $file
+     */
+    private function saveUploadedFile(ActiveRecord $model, string $attr, UploadedFile $file): void
+    {
+        $oldFile = $model->oldAttributes[$attr] ?? null;
+        $newFile = $this->store($file);
+
+        if ($newFile) {
+            $model->{$attr} = $newFile;
+
+            if ($oldFile && $newFile != $oldFile) {
+                $this->removeFile($oldFile);
+            }
+
+            // use callback function if exists
+            if (!is_null($this->callback)) {
+                call_user_func($this->callback, $newFile);
+            }
+        } else {
+            $model->addError($attr, Yii::t('yii', 'File upload failed.'));
         }
     }
 
@@ -141,7 +164,7 @@ class FileUploadBehavior extends Behavior
      *
      * @return null|string
      */
-    protected function store(UploadedFile $file)
+    private function store(UploadedFile $file)
     {
         $filePath = $this->buildUploadPath(
             $this->hashedFilename($file)
@@ -152,10 +175,10 @@ class FileUploadBehavior extends Behavior
         try {
             if ($this->saveFile($file, $destination)) {
                 return $filePath;
-            } else {
-                return null;
             }
-        } catch (\Exception $exception) {
+
+            return null;
+        } catch (BaseException $exception) {
             return null;
         }
     }
@@ -167,9 +190,9 @@ class FileUploadBehavior extends Behavior
      *
      * @return string
      */
-    protected function buildUploadPath(string $filename)
+    private function buildUploadPath(string $filename)
     {
-        $uploadPath = "/" . trim($this->uploadPath, '/ ') . "/";
+        $uploadPath = sprintf('/%s/', trim($this->uploadPath, '/'));
 
         return $uploadPath . $filename;
     }
@@ -195,11 +218,11 @@ class FileUploadBehavior extends Behavior
      *
      * @return bool|string
      */
-    protected function buildStoragePath(string $uploadPath)
+    private function buildStoragePath(string $uploadPath)
     {
         $uploadPath = StringHelper::startsWith($uploadPath, '/')
             ? $uploadPath
-            : '/' . $uploadPath;
+            : "/{$uploadPath}";
 
         return Yii::getAlias($this->storagePath . $uploadPath);
     }
@@ -211,9 +234,9 @@ class FileUploadBehavior extends Behavior
      * @param string $destination
      *
      * @return bool
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
-    protected function saveFile(UploadedFile $file, string $destination)
+    private function saveFile(UploadedFile $file, string $destination)
     {
         $directory = dirname($destination);
 
@@ -231,30 +254,10 @@ class FileUploadBehavior extends Behavior
      *
      * @return bool
      */
-    protected function removeFile(string $uploadedPath)
+    private function removeFile(string $uploadedPath)
     {
         $filePath = $this->buildStoragePath($uploadedPath);
 
         return @unlink($filePath);
-    }
-
-    /**
-     * Cleans dependent files after delete record from a database
-     */
-    public function afterDelete()
-    {
-        $this->clean();
-    }
-
-    /**
-     * Removes all of the record files in a storage
-     */
-    protected function clean()
-    {
-        foreach ($this->attributes as $attr) {
-            if ($this->owner->{$attr}) {
-                $this->removeFile($this->owner->{$attr});
-            }
-        }
     }
 }

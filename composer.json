@@ -3,7 +3,8 @@
   "description": "Collection of Yii2 behaviors for models",
   "type": "yii2-extension",
   "require": {
-    "yiisoft/yii2": ">=2.0"
+    "yiisoft/yii2": "2.0.*",
+    "ext-json": "*"
   },
   "license": "MIT",
   "authors": [
