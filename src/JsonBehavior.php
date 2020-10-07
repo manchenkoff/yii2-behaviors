@@ -36,9 +36,9 @@ class JsonBehavior extends Behavior
     /**
      * @var array Model attributes with JSON type
      */
-    public $attributes = [];
+    public array $attributes = [];
 
-    public function events()
+    public function events(): array
     {
         return [
             ActiveRecord::EVENT_AFTER_FIND => 'decodeData',

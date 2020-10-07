@@ -46,17 +46,17 @@ class FileUploadBehavior extends Behavior
     /**
      * @var string A path or an alias to base storage directory (local path)
      */
-    public $storagePath;
+    public string $storagePath;
 
     /**
      * @var string A path to uploads directory (web accessible)
      */
-    public $uploadPath;
+    public string $uploadPath;
 
     /**
      * @var array List of attributes to process uploading
      */
-    public $attributes;
+    public array $attributes;
 
     /**
      * @var callable Callback function to work with image after upload `function (string $imagePath) {...}`
@@ -67,7 +67,7 @@ class FileUploadBehavior extends Behavior
      * Binding behavior methods to ActiveRecord's events
      * @return array
      */
-    public function events()
+    public function events(): array
     {
         return [
             ActiveRecord::EVENT_BEFORE_VALIDATE => 'loadFilesFromRequest',
@@ -164,7 +164,7 @@ class FileUploadBehavior extends Behavior
      *
      * @return null|string
      */
-    private function store(UploadedFile $file)
+    private function store(UploadedFile $file): ?string
     {
         $filePath = $this->buildUploadPath(
             $this->hashedFilename($file)
@@ -190,7 +190,7 @@ class FileUploadBehavior extends Behavior
      *
      * @return string
      */
-    private function buildUploadPath(string $filename)
+    private function buildUploadPath(string $filename): string
     {
         $uploadPath = sprintf('/%s/', trim($this->uploadPath, '/'));
 
@@ -204,7 +204,7 @@ class FileUploadBehavior extends Behavior
      *
      * @return string
      */
-    private function hashedFilename(UploadedFile $file)
+    private function hashedFilename(UploadedFile $file): string
     {
         $hash = md5_file($file->tempName);
 
@@ -236,7 +236,7 @@ class FileUploadBehavior extends Behavior
      * @return bool
      * @throws Exception
      */
-    private function saveFile(UploadedFile $file, string $destination)
+    private function saveFile(UploadedFile $file, string $destination): bool
     {
         $directory = dirname($destination);
 
@@ -254,7 +254,7 @@ class FileUploadBehavior extends Behavior
      *
      * @return bool
      */
-    private function removeFile(string $uploadedPath)
+    private function removeFile(string $uploadedPath): bool
     {
         $filePath = $this->buildStoragePath($uploadedPath);
 
